@@ -1,9 +1,9 @@
 import { Container } from '@material-ui/core';
 import { Form, Field, Formik } from 'formik';
-import { TextField } from 'formik-material-ui';
-import EditIcon from '@material-ui/icons/Edit';
 import styled from 'styled-components';
 import React from 'react';
+
+import AddressContainer from './AddressContainer';
 
 const FormContainer = styled(Container)`
   height: 420px;
@@ -16,29 +16,6 @@ const FormContent = styled(Form)`
   display: flex;
   flex-direction: column;
   height: 100%;
-`;
-
-const TypeContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  padding-bottom: 10px;
-  ${props =>  props.success ? 'border-bottom: 1px solid grey;' : ''}
-`;
-
-const EditorIcon = styled(EditIcon)`
-display: flex;
-  margin: auto 0 auto 10px;
-
-  &:hover {
-    cursor: pointer;
-    opacity: .5;
-  }
-`;
-
-const ValueText = styled.span`
-  font-size: 22px;
-  line-height: 28px;
-  font-weight: normal;
 `;
 
 const SuccessContainer = styled.div`
@@ -71,16 +48,7 @@ function AddressForm({ theme }) {
         onSubmit={() => {handleSubmit()}}
       >
         <FormContent onChange={handleChangeValue} value={addressValue}>
-          <TypeContainer success={isSuccess}>
-            {
-              isSuccess
-                ? (<>
-                  <ValueText>{addressValue}</ValueText>
-                  <EditorIcon onClick={handleEditAddress} color="primary" fontSize="small" ></EditorIcon>
-                </>)
-                : (<Field id="autocomplete" name="address" component={TextField} label="Address" color="primary" variant="outlined" />)
-            }
-          </TypeContainer>
+          <AddressContainer success={isSuccess} addressValue={addressValue} onClick={handleEditAddress} />
           <SuccessContainer success={isSuccess}>
             <span>SUCCESS</span>
           </SuccessContainer>
