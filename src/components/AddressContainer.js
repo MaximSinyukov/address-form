@@ -26,14 +26,14 @@ display: flex;
   }
 `;
 
-function AddressContainer({ success, addressValue, onClick }) {
+function AddressContainer({ success, addressValue, onEditorClick }) {
   return (
     <TypeContainer success={success}>
       {
         success
           ? (<>
             <ValueText>{addressValue}</ValueText>
-            <EditorIcon onClick={onClick} color="primary" fontSize="small" ></EditorIcon>
+            <EditorIcon onClick={onEditorClick} color="primary" fontSize="small" ></EditorIcon>
           </>)
           : (<Field id="autocomplete" name="address" component={TextField} label="Address" color="primary" variant="outlined" />)
       }

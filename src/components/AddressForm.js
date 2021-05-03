@@ -1,12 +1,13 @@
 import { Container } from '@material-ui/core';
-import { Form, Field, Formik } from 'formik';
+import { Form, Formik } from 'formik';
 import styled from 'styled-components';
 import React from 'react';
-
+import AddressEditor from './AddressEditor';
 import AddressContainer from './AddressContainer';
 
 const FormContainer = styled(Container)`
-  height: 420px;
+  min-height: 320px;
+  height: auto;
   margin: auto;
   padding: 20px;
   background-color: ${props =>  props.theme === 'light' ? 'Lavender' : 'black'};
@@ -28,13 +29,23 @@ function AddressForm({ theme }) {
   const [isSuccess, setIsSuccess] = React.useState(false);
   const [addressEditor, setAddressEditor] = React.useState(false);
   const [addressValue, setAddressValue] = React.useState('');
+  const [editValue, setEditValue] = React.useState('');
 
   function handleChangeValue(e) {
     setAddressValue(e.target.value);
   }
 
+  function handleEditorValue(e) {
+    setEditValue(e.target.value + editValue);
+  }
+
   function handleSubmit() {
     setIsSuccess(!isSuccess);
+  }
+
+  function handleEditSubmit() {
+    setAddressEditor(false);
+    setAddressValue(editValue);
   }
 
   function handleEditAddress() {
@@ -44,15 +55,29 @@ function AddressForm({ theme }) {
   return (
     <FormContainer theme={theme} maxWidth="sm">
       <Formik
-        initialValues={{ address: '' }}
+        initialValues={{
+          address: '',
+          country: '',
+          city: '',
+          street: '',
+          'type street': '',
+          'type room': '',
+          'room number': '',
+          'postal code': '',
+        }}
         onSubmit={() => {handleSubmit()}}
       >
+        <>
+        <Form onChange={handleEditorValue}>
+          <AddressEditor isOpen={addressEditor} onEditValue={handleEditSubmit} />
+        </Form>
         <FormContent onChange={handleChangeValue} value={addressValue}>
-          <AddressContainer success={isSuccess} addressValue={addressValue} onClick={handleEditAddress} />
+          <AddressContainer success={isSuccess} addressValue={addressValue} onEditorClick={handleEditAddress} />
           <SuccessContainer success={isSuccess}>
             <span>SUCCESS</span>
           </SuccessContainer>
         </FormContent>
+        </>
       </Formik>
     </FormContainer>
   )
