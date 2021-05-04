@@ -4,6 +4,9 @@ import styled from 'styled-components';
 import React from 'react';
 import AddressEditor from './AddressEditor';
 import AddressContainer from './AddressContainer';
+import { useLoadScript } from '@react-google-maps/api';
+
+const library = ['places'];
 
 const FormContainer = styled(Container)`
   min-height: 320px;
@@ -22,7 +25,7 @@ const FormContent = styled(Form)`
 const SuccessContainer = styled.div`
   display: ${props =>  props.success ? 'flex' : 'none'};
   font-size: 72px;
-  margin: auto;
+  margin: 10px auto 0;
 `;
 
 function AddressForm({ theme }) {
@@ -31,8 +34,18 @@ function AddressForm({ theme }) {
   const [addressValue, setAddressValue] = React.useState('');
   const [editValue, setEditValue] = React.useState('');
 
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+    libraries: library
+  });
+
   function handleChangeValue(e) {
     setAddressValue(e.target.value);
+  }
+
+  function handleSelectOption(address) {
+    setAddressValue(address);
+    handleSubmit();
   }
 
   function handleEditorValue(e) {
@@ -52,11 +65,14 @@ function AddressForm({ theme }) {
     setAddressEditor(!addressEditor);
   }
 
+  if (loadError) return 'Error loading google maps';
+  if (!isLoaded) return 'Loading maps';
+
   return (
     <FormContainer theme={theme} maxWidth="sm">
       <Formik
         initialValues={{
-          address: '',
+          address: addressValue,
           country: '',
           city: '',
           street: '',
@@ -72,7 +88,7 @@ function AddressForm({ theme }) {
           <AddressEditor isOpen={addressEditor} onEditValue={handleEditSubmit} />
         </Form>
         <FormContent onChange={handleChangeValue} value={addressValue}>
-          <AddressContainer success={isSuccess} addressValue={addressValue} onEditorClick={handleEditAddress} />
+          <AddressContainer success={isSuccess} addressValue={addressValue} onEditorClick={handleEditAddress} onSelectClick={handleSelectOption} />
           <SuccessContainer success={isSuccess}>
             <span>SUCCESS</span>
           </SuccessContainer>
