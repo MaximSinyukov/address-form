@@ -5,6 +5,7 @@ import React from 'react';
 import AddressEditor from './AddressEditor';
 import AddressContainer from './AddressContainer';
 import { useLoadScript } from '@react-google-maps/api';
+import { CurrentAddressContext } from '../context/CurrentAddressContext';
 
 const library = ['places'];
 
@@ -69,33 +70,35 @@ function AddressForm({ theme }) {
   if (!isLoaded) return 'Loading maps';
 
   return (
-    <FormContainer theme={theme} maxWidth="sm">
-      <Formik
-        initialValues={{
-          address: addressValue,
-          country: '',
-          city: '',
-          street: '',
-          'type street': '',
-          'type room': '',
-          'room number': '',
-          'postal code': '',
-        }}
-        onSubmit={() => {handleSubmit()}}
-      >
-        <>
-        <Form onChange={handleEditorValue}>
-          <AddressEditor isOpen={addressEditor} onEditValue={handleEditSubmit} />
-        </Form>
-        <FormContent onChange={handleChangeValue} value={addressValue}>
-          <AddressContainer success={isSuccess} addressValue={addressValue} onEditorClick={handleEditAddress} onSelectClick={handleSelectOption} />
-          <SuccessContainer success={isSuccess}>
-            <span>SUCCESS</span>
-          </SuccessContainer>
-        </FormContent>
-        </>
-      </Formik>
-    </FormContainer>
+    <CurrentAddressContext.Provider value={addressValue}>
+      <FormContainer theme={theme} maxWidth="sm">
+        <Formik
+          initialValues={{
+            address: addressValue,
+            country: '',
+            city: '',
+            street: '',
+            'type street': '',
+            'type room': '',
+            'room number': '',
+            'postal code': '',
+          }}
+          onSubmit={() => {handleSubmit()}}
+        >
+          <>
+          <Form onChange={handleEditorValue}>
+            <AddressEditor isOpen={addressEditor} onEditValue={handleEditSubmit} />
+          </Form>
+          <FormContent onChange={handleChangeValue} value={addressValue}>
+            <AddressContainer success={isSuccess} onEditorClick={handleEditAddress} onSelectClick={handleSelectOption} />
+            <SuccessContainer success={isSuccess}>
+              <span>SUCCESS</span>
+            </SuccessContainer>
+          </FormContent>
+          </>
+        </Formik>
+      </FormContainer>
+    </CurrentAddressContext.Provider>
   )
 }
 

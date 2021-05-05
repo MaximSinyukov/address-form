@@ -3,6 +3,8 @@ import { TextField } from 'formik-material-ui';
 import EditIcon from '@material-ui/icons/Edit';
 import styled from 'styled-components';
 import usePlacesAutocomplete from 'use-places-autocomplete';
+import React from 'react';
+import { CurrentAddressContext } from '../context/CurrentAddressContext';
 
 const TypeContainer = styled.div`
   display: flex;
@@ -50,7 +52,8 @@ display: flex;
   }
 `;
 
-function AddressContainer({ success, addressValue, onEditorClick, onSelectClick }) {
+function AddressContainer({ success, onEditorClick, onSelectClick }) {
+  const addressValue = React.useContext(CurrentAddressContext);
 
   const { ready,  suggestions: { status, data }, setValue, clearSuggestions } = usePlacesAutocomplete();
 
