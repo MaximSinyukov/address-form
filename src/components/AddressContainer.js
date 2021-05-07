@@ -2,7 +2,7 @@ import { Field } from 'formik';
 import { TextField } from 'formik-material-ui';
 import EditIcon from '@material-ui/icons/Edit';
 import styled from 'styled-components';
-import usePlacesAutocomplete from 'use-places-autocomplete';
+import usePlacesAutocomplete, { getDetails } from 'use-places-autocomplete';
 import React from 'react';
 import { CurrentAddressContext } from '../context/CurrentAddressContext';
 
@@ -52,13 +52,24 @@ display: flex;
   }
 `;
 
-function AddressContainer({ success, onEditorClick, onSelectClick }) {
-  const addressValue = React.useContext(CurrentAddressContext);
+function AddressContainer({ success, onEditorClick, onSelectClick, onChangeValue }) {
+  const address = React.useContext(CurrentAddressContext);
 
   const { ready,  suggestions: { status, data }, setValue, clearSuggestions } = usePlacesAutocomplete();
 
-  function selectOption(address) {
-    onSelectClick(address);
+  async function selectOption(place_id) {
+    const newAddress = {};
+
+    await getDetails({ placeId: place_id })
+            .then((details) => {
+              newAddress.parts = details.address_components;
+              newAddress.address = details.formatted_address;
+            })
+            .catch((error) => {
+              console.log("Error: ", error);
+            });
+
+    onSelectClick(place_id, newAddress);
     clearSuggestions();
   }
 
@@ -67,7 +78,7 @@ function AddressContainer({ success, onEditorClick, onSelectClick }) {
       {
         success
           ? (<>
-            <ValueText>{addressValue}</ValueText>
+            <ValueText>{address.addressValue}</ValueText>
             <EditorIcon onClick={onEditorClick} color="primary" fontSize="small" ></EditorIcon>
           </>)
           : (<>
@@ -78,9 +89,15 @@ function AddressContainer({ success, onEditorClick, onSelectClick }) {
                 label="Address"
                 color="primary"
                 variant="outlined"
-                value={addressValue}
+                value={address.addressValue}
                 onChange={(e) => {
                   setValue(e.target.value);
+                  onChangeValue(e);
+                }}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    selectOption(data[0].place_id);
+                  }
                 }}
                 disabled={!ready}
               />
@@ -89,7 +106,7 @@ function AddressContainer({ success, onEditorClick, onSelectClick }) {
                   <Option
                     key={place_id}
                     onClick={() => {
-                      selectOption(description);
+                      selectOption(place_id);
                     }}
                   >
                     {description}

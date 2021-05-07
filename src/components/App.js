@@ -9,7 +9,7 @@ const AppContainer = styled.div`
 function App() {
   return (
     <AppContainer>
-      <AddressForm theme={'light'} />
+      <AddressForm />
     </AppContainer>
   );
 }

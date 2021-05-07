@@ -14,7 +14,7 @@ const FormContainer = styled(Container)`
   height: auto;
   margin: auto;
   padding: 20px;
-  background-color: ${props =>  props.theme === 'light' ? 'Lavender' : 'black'};
+  background-color: Lavender;
 `;
 
 const FormContent = styled(Form)`
@@ -29,11 +29,11 @@ const SuccessContainer = styled.div`
   margin: 10px auto 0;
 `;
 
-function AddressForm({ theme }) {
+function AddressForm() {
   const [isSuccess, setIsSuccess] = React.useState(false);
   const [addressEditor, setAddressEditor] = React.useState(false);
   const [addressValue, setAddressValue] = React.useState('');
-  const [editValue, setEditValue] = React.useState('');
+  const [addressParts, setAddressParts] = React.useState({ place_id: '', parts: {} });
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
@@ -44,13 +44,27 @@ function AddressForm({ theme }) {
     setAddressValue(e.target.value);
   }
 
-  function handleSelectOption(address) {
-    setAddressValue(address);
+  function handleSelectOption(place_id, newAddress) {
+    const addressObj = destructureAddress(newAddress.parts);
+    setAddressValue(newAddress.address);
+    setAddressParts({ ...addressParts, place_id: place_id, parts: addressObj });
     handleSubmit();
   }
 
-  function handleEditorValue(e) {
-    setEditValue(e.target.value + editValue);
+  function destructureAddress(address) {
+    const addressObj = {};
+
+    address.forEach((item) => {
+      addressObj[item.types[0]] = item.types[0] === 'country' ? item.long_name : item.short_name;
+    });
+
+    return addressObj;
+  }
+
+  function handleEditorValue(evt) {
+    const changedAddress = { ...addressParts.parts };
+    changedAddress[evt.target.id] = evt.target.value;
+    setAddressParts({ ...addressParts, parts: changedAddress });
   }
 
   function handleSubmit() {
@@ -58,8 +72,11 @@ function AddressForm({ theme }) {
   }
 
   function handleEditSubmit() {
+    const { administrative_area_level_1,  country, locality, postal_code, route, street_number } = addressParts.parts;
+    const newAddress = `${route}, ${street_number}, ${locality}, ${administrative_area_level_1}, ${country}, ${postal_code}`;
+
     setAddressEditor(false);
-    setAddressValue(editValue);
+    setAddressValue(newAddress);
   }
 
   function handleEditAddress() {
@@ -70,18 +87,18 @@ function AddressForm({ theme }) {
   if (!isLoaded) return 'Loading maps';
 
   return (
-    <CurrentAddressContext.Provider value={addressValue}>
-      <FormContainer theme={theme} maxWidth="sm">
+    <CurrentAddressContext.Provider value={{addressValue: addressValue, addressParts: addressParts}}>
+      <FormContainer maxWidth="sm">
         <Formik
           initialValues={{
-            address: addressValue,
+            address: '',
+            administrative_area_level_1: '',
+            administrative_area_level_2: '',
             country: '',
-            city: '',
-            street: '',
-            'type street': '',
-            'type room': '',
-            'room number': '',
-            'postal code': '',
+            locality: '',
+            postal_code: '',
+            route: '',
+            street_number: '',
           }}
           onSubmit={() => {handleSubmit()}}
         >
@@ -89,8 +106,8 @@ function AddressForm({ theme }) {
           <Form onChange={handleEditorValue}>
             <AddressEditor isOpen={addressEditor} onEditValue={handleEditSubmit} />
           </Form>
-          <FormContent onChange={handleChangeValue} value={addressValue}>
-            <AddressContainer success={isSuccess} onEditorClick={handleEditAddress} onSelectClick={handleSelectOption} />
+          <FormContent>
+            <AddressContainer success={isSuccess} onEditorClick={handleEditAddress} onSelectClick={handleSelectOption} onChangeValue={handleChangeValue} />
             <SuccessContainer success={isSuccess}>
               <span>SUCCESS</span>
             </SuccessContainer>
