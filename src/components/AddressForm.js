@@ -6,6 +6,7 @@ import AddressEditor from './AddressEditor';
 import AddressContainer from './AddressContainer';
 import { useLoadScript } from '@react-google-maps/api';
 import { CurrentAddressContext } from '../context/CurrentAddressContext';
+import LoopIcon from '@material-ui/icons/Loop';
 
 const library = ['places'];
 
@@ -25,8 +26,18 @@ const FormContent = styled(Form)`
 
 const SuccessContainer = styled.div`
   display: ${props =>  props.success ? 'flex' : 'none'};
+  flex-direction: column;
   font-size: 72px;
   margin: 10px auto 0;
+`;
+
+const ReloadIcon = styled(LoopIcon)`
+  margin: 30px auto auto;
+
+  &:hover {
+    cursor: pointer;
+    opacity: .5;
+  }
 `;
 
 function AddressForm() {
@@ -68,7 +79,11 @@ function AddressForm() {
   }
 
   function handleSubmit() {
-    setIsSuccess(!isSuccess);
+    setIsSuccess(true);
+  }
+
+  function reloadForm() {
+    setIsSuccess(false);
   }
 
   function handleEditSubmit() {
@@ -82,6 +97,11 @@ function AddressForm() {
 
   function handleEditAddress() {
     setAddressEditor(!addressEditor);
+  }
+
+  function handleReloadForm() {
+    reloadForm();
+    setAddressValue('');
   }
 
   if (loadError) return 'Error loading google maps';
@@ -111,6 +131,7 @@ function AddressForm() {
             <AddressContainer success={isSuccess} onEditorClick={handleEditAddress} onSelectClick={handleSelectOption} onChangeValue={handleChangeValue} />
             <SuccessContainer success={isSuccess}>
               <span>SUCCESS</span>
+              <ReloadIcon onClick={handleReloadForm} color="primary" fontSize="large" />
             </SuccessContainer>
           </FormContent>
           </>
