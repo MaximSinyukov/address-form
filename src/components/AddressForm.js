@@ -73,7 +73,8 @@ function AddressForm() {
 
   function handleEditSubmit() {
     const { administrative_area_level_1,  country, locality, postal_code, route, street_number } = addressParts.parts;
-    const newAddress = `${route}, ${street_number}, ${locality}, ${administrative_area_level_1}, ${country}, ${postal_code}`;
+    let newAddress = `${route ? `${route}` : ''}${street_number ? `, ${street_number}` : ''}${locality ? `, ${locality}` : ''}${administrative_area_level_1 ? `, ${administrative_area_level_1}` : ''}${country ? `, ${country}` : ''}${postal_code ? `, ${postal_code}` : ''}`;
+    newAddress = newAddress.startsWith(',') ? newAddress.slice(2) : newAddress;
 
     setAddressEditor(false);
     setAddressValue(newAddress);
